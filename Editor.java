@@ -26,8 +26,10 @@ import javax.swing.UIManager;
 
 public class Editor {
 
-	private JFrame frmEditorDeTextos;
+	private JFrame frmTextEditor;
 	private JFileChooser chooser;
+	private JTextArea text;
+	private File file;
 
 	/**
 	 * Launch the application.
@@ -37,7 +39,7 @@ public class Editor {
 			public void run() {
 				try {
 					Editor window = new Editor();
-					window.frmEditorDeTextos.setVisible(true);
+					window.frmTextEditor.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -49,46 +51,77 @@ public class Editor {
 	 * Create the application.
 	 */
 	public Editor() {
+		// initializing the editor
 		initialize();
+	}
+
+	/**
+	 * This code implements save for text file. It is used in the save functionality and in the close for saving vefore close
+	 * (if the user wants to be this manner). The user can to go out without save, but is interesting to know before if is 
+	 * exactly what he desires.
+	 */
+	private void salvar() {
+		// the file chooser
+		chooser = new JFileChooser();
+		
+		file = null;
+		int returnVal = chooser.showSaveDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			file = chooser.getSelectedFile();
+		}
+		
+		// create a byte buffer with the file content
+		byte[] bytes = text.getText().getBytes();
+		
+		// save
+		try {
+			Files.write(file.toPath(), bytes);
+			JOptionPane.showMessageDialog(null, "File saved successfullyo");
+		} catch (IOException e1) {
+			JOptionPane.showMessageDialog(null, "I/O error");
+		}
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmEditorDeTextos = new JFrame();
-		frmEditorDeTextos.setResizable(false);
-		frmEditorDeTextos.setForeground(Color.CYAN);
-		frmEditorDeTextos.setBackground(UIManager.getColor("InternalFrame.activeTitleForeground"));
-		frmEditorDeTextos.setFont(new Font("Courier New", Font.PLAIN, 12));
-		frmEditorDeTextos.setTitle("Editor de Textos");
-		frmEditorDeTextos.setBounds(100, 100, 900, 370);
-		frmEditorDeTextos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmEditorDeTextos.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		
-	
-		JTextArea text = new JTextArea();
+		// configure the frame text editor window
+		frmTextEditor = new JFrame();
+		frmTextEditor.setResizable(false);
+		frmTextEditor.setForeground(Color.CYAN);
+		frmTextEditor.setBackground(UIManager.getColor("InternalFrame.activeTitleForeground"));
+		frmTextEditor.setFont(new Font("Courier New", Font.PLAIN, 12));
+		frmTextEditor.setTitle("Editor de Textos");
+		frmTextEditor.setBounds(100, 100, 900, 370);
+		frmTextEditor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmTextEditor.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+
+		// configure the editor text area
+		text = new JTextArea();
 		text.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		text.setForeground(UIManager.getColor("TextArea.foreground"));
 		text.setBackground(UIManager.getColor("EditorPane.background"));
 		text.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 18));
 		text.setColumns(80);
 		text.setRows(16);
-		frmEditorDeTextos.getContentPane().add(text);
+		frmTextEditor.getContentPane().add(text);
 
+		// configure scroll pane in the text area
 		JScrollPane scrollPane = new JScrollPane(text);
 		scrollPane.setBackground(Color.DARK_GRAY);
-		frmEditorDeTextos.getContentPane().add(scrollPane);
-		
+		frmTextEditor.getContentPane().add(scrollPane);
+
+		// configure the menu bar
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(UIManager.getColor("Menu.background"));
 		scrollPane.setColumnHeaderView(menuBar);
-		
-		JMenu mnAbrir = new JMenu("Arquivo");
-		menuBar.add(mnAbrir);
-		
-		JMenuItem mntmAbrir = new JMenuItem("Abrir");
-		mntmAbrir.addActionListener(new ActionListener() {
+
+		JMenu menuOpen = new JMenu("File");
+		menuBar.add(menuOpen);
+
+		JMenuItem menuItemOpen = new JMenuItem("Open");
+		menuItemOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				chooser = new JFileChooser();
 				chooser.showOpenDialog(null);
@@ -103,82 +136,76 @@ public class Editor {
 				text.setText(conteudo);
 			}
 		});
-		
-		JMenuItem mntmNovo = new JMenuItem("Novo");
-		mnAbrir.add(mntmNovo);
-		mnAbrir.add(mntmAbrir);
-		
-		JMenuItem mntmSalvar = new JMenuItem("Salvar");
-		mntmSalvar.addActionListener(new ActionListener() {
+
+		JMenuItem menuItemNew = new JMenuItem("New");
+		menuOpen.add(menuItemNew);
+		menuOpen.add(menuItemOpen);
+
+		JMenuItem menuItemSave = new JMenuItem("Save");
+		menuItemSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				chooser = new JFileChooser();
-				File file = null;
-				int returnVal = chooser.showSaveDialog(null);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					file = chooser.getSelectedFile();
-				}
-				byte[] bytes = text.getText().getBytes();
-				try {
-					Files.write(file.toPath(), bytes);
-					JOptionPane.showMessageDialog(null, "Arquivo salvo com sucesso");
-				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(null, "Erro de entrada/saída");
-				}
+				salvar();
 			}
 		});
-		mnAbrir.add(mntmSalvar);
-		
-		JMenuItem mntmFechar = new JMenuItem("Fechar");
-		mntmFechar.addActionListener(new ActionListener() {
+		menuOpen.add(menuItemSave);
+
+		JMenuItem menuItemClose = new JMenuItem("Close");
+		menuItemClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				text.setText("");
+				int result = JOptionPane.showConfirmDialog(null, "Você quer salvar o arquivo antes de fechar?", "Fechar", JOptionPane.YES_NO_OPTION);
+				if (result == JOptionPane.YES_OPTION) {
+					salvar();
+					text.setText("");
+				}
+				if (result == JOptionPane.NO_OPTION)
+					text.setText("");
 			}
 		});
-		mnAbrir.add(mntmFechar);
-		
-		JMenuItem mntmSair = new JMenuItem("Sair");
-		mntmSair.addActionListener(new ActionListener() {
+		menuOpen.add(menuItemClose);
+
+		JMenuItem menuItemQuit = new JMenuItem("Quit");
+		menuItemQuit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
-		mnAbrir.add(mntmSair);
-		
-		JMenu mnEditar = new JMenu("Editar");
-		menuBar.add(mnEditar);
-		
-		JMenu mnFormatar = new JMenu("Formatar");
-		menuBar.add(mnFormatar);
-		
+		menuOpen.add(menuItemQuit);
+
+		JMenu menuEdit = new JMenu("Edit");
+		menuBar.add(menuEdit);
+
+		JMenu menuFormat = new JMenu("Format");
+		menuBar.add(menuFormat);
+
 		JMenuItem mntmFonte = new JMenuItem("Fonte");
-		mnFormatar.add(mntmFonte);
-		
-		JMenu mnVer = new JMenu("Ver");
-		menuBar.add(mnVer);
-		
-		JMenu mnAjuda = new JMenu("Ajuda");
-		menuBar.add(mnAjuda);
-		
+		menuFormat.add(mntmFonte);
+
+		JMenu menuView = new JMenu("View");
+		menuBar.add(menuView);
+
+		JMenu menuHelp = new JMenu("Help");
+		menuBar.add(menuHelp);
+
 		JMenuItem mntmComoUsar = new JMenuItem("Como usar");
 		mntmComoUsar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, 
-						"Esse editor é muito simples. É só digitar o texto usando a setas, backspace e Enter\n" +
-						"como em qualquer outro editor. Use os menus para abrir novo arquivo e salvar o que foi\n" +
-						"digitado. O outro menu é o de Ajuda (muito simples de usar).");
+				JOptionPane.showMessageDialog(null,
+						"Esse editor é muito simples. É só digitar o texto usando a setas, backspace e Enter\n"
+								+ "como em qualquer outro editor. Use os menus para abrir novo arquivo e salvar o que foi\n"
+								+ "digitado. O outro menu é o de Ajuda (muito simples de usar).");
 			}
 		});
-		mnAjuda.add(mntmComoUsar);
-		
+		menuHelp.add(mntmComoUsar);
+
 		JMenuItem mntmSobre = new JMenuItem("Sobre");
 		mntmSobre.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, 
-						"Essa é uma mensagem que mostra informações a respeito do Editorde Textos.\n" +
-						"É um editor muito simples, escrito como exercício de programação de infterfaces\n" +
-						"em Java.");
+				JOptionPane.showMessageDialog(null,
+						"Essa é uma mensagem que mostra informações a respeito do Editorde Textos.\n"
+								+ "É um editor muito simples, escrito como exercício de programação de infterfaces\n"
+								+ "em Java.");
 			}
 		});
-		mnAjuda.add(mntmSobre);
+		menuHelp.add(mntmSobre);
 	}
 }
