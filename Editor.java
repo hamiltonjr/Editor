@@ -94,6 +94,9 @@ public class Editor {
 				text.setText(conteudo);
 			}
 		});
+		
+		JMenuItem mntmNovo = new JMenuItem("Novo");
+		mnAbrir.add(mntmNovo);
 		mnAbrir.add(mntmAbrir);
 		
 		JMenuItem mntmSalvar = new JMenuItem("Salvar");
@@ -108,12 +111,41 @@ public class Editor {
 				byte[] bytes = text.getText().getBytes();
 				try {
 					Files.write(file.toPath(), bytes);
+					JOptionPane.showMessageDialog(null, "Arquivo salvo com sucesso");
 				} catch (IOException e1) {
 					JOptionPane.showMessageDialog(null, "Erro de entrada/saída");
 				}
 			}
 		});
 		mnAbrir.add(mntmSalvar);
+		
+		JMenuItem mntmFechar = new JMenuItem("Fechar");
+		mntmFechar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				text.setText("");
+			}
+		});
+		mnAbrir.add(mntmFechar);
+		
+		JMenuItem mntmSair = new JMenuItem("Sair");
+		mntmSair.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		mnAbrir.add(mntmSair);
+		
+		JMenu mnEditar = new JMenu("Editar");
+		menuBar.add(mnEditar);
+		
+		JMenu mnFormatar = new JMenu("Formatar");
+		menuBar.add(mnFormatar);
+		
+		JMenuItem mntmFonte = new JMenuItem("Fonte");
+		mnFormatar.add(mntmFonte);
+		
+		JMenu mnVer = new JMenu("Ver");
+		menuBar.add(mnVer);
 		
 		JMenu mnAjuda = new JMenu("Ajuda");
 		menuBar.add(mnAjuda);

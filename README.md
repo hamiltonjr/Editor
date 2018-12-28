@@ -1,2 +1,3 @@
 # Editor
-Um editor simples em Java
+A simple editor coded in Java.
+
