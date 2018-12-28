@@ -20,6 +20,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import java.awt.Cursor;
+import java.awt.SystemColor;
+import javax.swing.UIManager;
 
 public class Editor {
 
@@ -54,25 +57,31 @@ public class Editor {
 	 */
 	private void initialize() {
 		frmEditorDeTextos = new JFrame();
+		frmEditorDeTextos.setResizable(false);
 		frmEditorDeTextos.setForeground(Color.CYAN);
-		frmEditorDeTextos.setBackground(Color.RED);
+		frmEditorDeTextos.setBackground(UIManager.getColor("InternalFrame.activeTitleForeground"));
 		frmEditorDeTextos.setFont(new Font("Courier New", Font.PLAIN, 12));
 		frmEditorDeTextos.setTitle("Editor de Textos");
-		frmEditorDeTextos.setBounds(100, 100, 500, 300);
+		frmEditorDeTextos.setBounds(100, 100, 900, 370);
 		frmEditorDeTextos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmEditorDeTextos.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 	
 		JTextArea text = new JTextArea();
-		text.setFont(new Font("Dialog", Font.PLAIN, 18));
-		text.setColumns(28);
-		text.setRows(10);
+		text.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+		text.setForeground(UIManager.getColor("TextArea.foreground"));
+		text.setBackground(UIManager.getColor("EditorPane.background"));
+		text.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 18));
+		text.setColumns(80);
+		text.setRows(16);
 		frmEditorDeTextos.getContentPane().add(text);
 
 		JScrollPane scrollPane = new JScrollPane(text);
+		scrollPane.setBackground(Color.DARK_GRAY);
 		frmEditorDeTextos.getContentPane().add(scrollPane);
 		
 		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBackground(UIManager.getColor("Menu.background"));
 		scrollPane.setColumnHeaderView(menuBar);
 		
 		JMenu mnAbrir = new JMenu("Arquivo");
@@ -172,5 +181,4 @@ public class Editor {
 		});
 		mnAjuda.add(mntmSobre);
 	}
-
 }
